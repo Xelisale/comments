@@ -26,11 +26,13 @@ def get_all_name():
 
 @app.route('/comments/api/names/<int:names_id>', methods=['GET'])
 def get_name(names_id):
+	with open('names.json', 'r') as file:
+		names = json.load(file)
 	name = list(filter(lambda t: t['id'] == names_id, names))
-	print(name)
 	if len(name) == 0:
 		abort(404)
-	return jsonify({'name': name[0]})
+	res = names[names_id]
+	return jsonify({'name': res})
 
 
 @app.route('/comments/api/names/find/', methods=['POST'])
@@ -42,19 +44,36 @@ def names_find():
 	data = search.convert(base_page)
 	t = 0
 	for dat in data:
+		url_page = search.vine_redirect_page(dat['@id'])
+		# comments = search.vine_comments(url_page)
 		result = {
 			'id': t,
 			'name': dat['name'],
 			'image': dat['image'],
+			'url': url_page[:-1],
 			# 'done':  False
+			# 'comments': comments,
 		}
 		names.append(result)
 		t += 1
 	with open('names.json', 'w') as file:
 		json.dump(names, file)
 		print('done')
-	print(names)
 	return jsonify({'names': names}), 201
+
+
+@app.route('/comments/api/names/find/one/', methods=['POST'])
+def one_comment():
+	if not request.json or not 'id' in request.json:
+		abort(400)
+	with open('names.json', 'r') as file:
+		dat = json.load(file)
+	search = Search()
+	print(request.json['id'])
+	page = int(request.json['id'])
+	page = dat[page]['url']
+	comments = search.vine_comments(page)
+	return jsonify({'page': comments}), 201
 
 
 @app.errorhandler(404)
