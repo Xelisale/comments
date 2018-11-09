@@ -48,18 +48,22 @@ def names_find():
 
 @app.route('/comments/api/names/find/one/', methods=['POST'])
 def one_comment():
-	comment = {}
+	result = []
 	if not request.json or not 'id' in request.json:
 		abort(400)
 	search = Search()
 	comments = search.vine_comm(request.json['id'])
 	comments = json.loads(comments)
 	result_all = comments['reviews']
-	t = 0
-	for result in result_all:
-		comment[t] = result['note']
-		t += 1
-	return jsonify({'comment': comment}), 201
+	for result_one in result_all:
+		comment = {
+			(result_one['user']['alias']):
+				{
+					'image': result_one['user']['image'],
+					'note': result_one['note']}
+	}
+		result.append(comment)
+	return jsonify({'comment': result}), 201
 
 
 @app.errorhandler(404)
