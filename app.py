@@ -9,8 +9,9 @@ from function import Search
 
 app = Flask(__name__)
 
-names = []
+
 SITE = 'http://vivino.com/search/wines?q='
+
 
 @app.route('/')
 def base():
@@ -40,40 +41,26 @@ def names_find():
 	if not request.json or not 'name' in request.json:
 		abort(400)
 	search = Search()
-	base_page = search.page_result(SITE, request.json['name'])
-	data = search.convert(base_page)
-	t = 0
-	for dat in data:
-		url_page = search.vine_redirect_page(dat['@id'])
-		# comments = search.vine_comments(url_page)
-		result = {
-			'id': t,
-			'name': dat['name'],
-			'image': dat['image'],
-			'url': url_page[:-1],
-			# 'done':  False
-			# 'comments': comments,
-		}
-		names.append(result)
-		t += 1
-	with open('names.json', 'w') as file:
-		json.dump(names, file)
-		print('done')
+	search.total(SITE, request.json['name'])
+	with open('names.json', 'r') as file:
+		names = json.load(file)
 	return jsonify({'names': names}), 201
 
 
 @app.route('/comments/api/names/find/one/', methods=['POST'])
 def one_comment():
+	comment = {}
 	if not request.json or not 'id' in request.json:
 		abort(400)
-	with open('names.json', 'r') as file:
-		dat = json.load(file)
 	search = Search()
-	print(request.json['id'])
-	page = int(request.json['id'])
-	page = dat[page]['url']
-	comments = search.vine_comments(page)
-	return jsonify({'page': comments}), 201
+	comments = search.vine_comm(request.json['id'])
+	comments = json.loads(comments)
+	result_all = comments['reviews']
+	t = 0
+	for result in result_all:
+		comment[t] = result['note']
+		t += 1
+	return jsonify({'comment': comment}), 201
 
 
 @app.errorhandler(404)
