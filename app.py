@@ -29,11 +29,10 @@ def get_all_name():
 def get_name(names_id):
 	with open('names.json', 'r') as file:
 		names = json.load(file)
-	name = list(filter(lambda t: t['id'] == names_id, names))
+	name = list(filter(lambda t: int(t['id']) == names_id, names))
 	if len(name) == 0:
 		abort(404)
-	res = names[names_id]
-	return jsonify({'name': res})
+	return jsonify({'name': name})
 
 
 @app.route('/comments/api/names/find/', methods=['POST'])
@@ -41,26 +40,30 @@ def names_find():
 	if not request.json or not 'name' in request.json:
 		abort(400)
 	search = Search()
-	search.total(SITE, request.json['name'])
-	with open('names.json', 'r') as file:
-		names = json.load(file)
+	names = search.total(SITE, request.json['name'])
+	with open('names.json', 'w') as file:
+		json.dump(names, file)
 	return jsonify({'names': names}), 201
 
 
 @app.route('/comments/api/names/find/one/', methods=['POST'])
 def one_comment():
-	comment = {}
+	result = []
 	if not request.json or not 'id' in request.json:
 		abort(400)
 	search = Search()
 	comments = search.vine_comm(request.json['id'])
 	comments = json.loads(comments)
 	result_all = comments['reviews']
-	t = 0
-	for result in result_all:
-		comment[t] = result['note']
-		t += 1
-	return jsonify({'comment': comment}), 201
+	for result_one in result_all:
+		comment = {
+			(result_one['user']['alias']):
+				{
+					'image': result_one['user']['image'],
+					'note': result_one['note']}
+	}
+		result.append(comment)
+	return jsonify({'comment': result}), 201
 
 
 @app.errorhandler(404)
