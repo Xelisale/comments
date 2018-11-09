@@ -5,8 +5,8 @@ import re
 
 class Search:
 	"""Search a vine only in vivio"""
-	def page_result(self, www, ob_find):
-		data = requests.get(www + ob_find)
+	def page_result(self, www, ob_find, page_number='1'):
+		data = requests.get(www + ob_find + '&amp;start=' + page_number)
 		result = data.text.split('\n')
 		return result
 
@@ -39,6 +39,4 @@ class Search:
 				'image': data['image'],
 			}
 			names.append(result)
-		with open('names.json', 'w') as file:
-			json.dump(names, file)
 		return names

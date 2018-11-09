@@ -29,11 +29,10 @@ def get_all_name():
 def get_name(names_id):
 	with open('names.json', 'r') as file:
 		names = json.load(file)
-	name = list(filter(lambda t: t['id'] == names_id, names))
+	name = list(filter(lambda t: int(t['id']) == names_id, names))
 	if len(name) == 0:
 		abort(404)
-	res = names[names_id]
-	return jsonify({'name': res})
+	return jsonify({'name': name})
 
 
 @app.route('/comments/api/names/find/', methods=['POST'])
@@ -41,9 +40,9 @@ def names_find():
 	if not request.json or not 'name' in request.json:
 		abort(400)
 	search = Search()
-	search.total(SITE, request.json['name'])
-	with open('names.json', 'r') as file:
-		names = json.load(file)
+	names = search.total(SITE, request.json['name'])
+	with open('names.json', 'w') as file:
+		json.dump(names, file)
 	return jsonify({'names': names}), 201
 
 
