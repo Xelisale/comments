@@ -3,14 +3,9 @@ from flask import make_response, request
 import json
 from werkzeug.contrib.fixers import ProxyFix
 
-
-from function import Search
-
+from function import Search, WorksDB
 
 app = Flask(__name__)
-
-
-SITE = 'http://vivino.com/search/wines?q='
 
 
 @app.route('/')
@@ -37,10 +32,10 @@ def get_name(names_id):
 
 @app.route('/comments/api/names/find/', methods=['POST'])
 def names_find():
-	if not request.json or not 'name' in request.json:
+	if not (request.json and 'name' in request.json):
 		abort(400)
 	search = Search()
-	names = search.total(SITE, request.json['name'])
+	names = search.total(request.json['name'])
 	with open('names.json', 'w') as file:
 		json.dump(names, file)
 	return jsonify({'names': names}), 201
@@ -49,20 +44,31 @@ def names_find():
 @app.route('/comments/api/names/find/one/', methods=['POST'])
 def one_comment():
 	result = []
-	if not request.json or not 'id' in request.json:
+	if not (request.json and 'id' in request.json):
 		abort(400)
 	search = Search()
-	comments = search.vine_comm(request.json['id'])
-	comments = json.loads(comments)
-	result_all = comments['reviews']
-	for result_one in result_all:
-		comment = {
-			(result_one['user']['alias']):
-				{
-					'image': result_one['user']['image'],
-					'note': result_one['note']}
-	}
-		result.append(comment)
+	work_bd = WorksDB()
+	work_bd.create_database()
+	data = work_bd.check_id(request.json['id'])
+	if not ('cache' in request.json) and len(data) != 0:
+		return jsonify({'comments': data}), 201
+	else:
+		comments = json.loads(search.wine_comm(request.json['id']))
+		result_all = comments['reviews']
+		for result_one in result_all:
+			comment = {
+				(result_one['user']['alias']):
+					{
+						'image': result_one['user']['image'],
+						'note': result_one['note']
+					}
+			}
+			result.append(comment)
+		bd_data = [request.json['id'], str(result)]
+		if not 'cache' in request.json:
+			work_bd.insert(bd_data)
+		else:
+			work_bd.update_bd(bd_data)
 	return jsonify({'comment': result}), 201
 
 
