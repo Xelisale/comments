@@ -33,12 +33,7 @@ class Search:
 		data_json = self.convert(data_page)
 		for data in data_json:
 			dat = self.vine_id(data['@id'])
-			result = [
-				dict(id=dat, name=data['name'], image=data['image'])
-			]
+			result = dict(id=dat, name=data['name'], image=data['image'])
 			names.append(result)
-<<<<<<< HEAD
 		return names
-=======
-		return result
->>>>>>> e85365fa5f6286e90fbeb5ded442aa4f78233461
+
