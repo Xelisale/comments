@@ -6,44 +6,57 @@ import sqlite3
 
 class Search:
 	"""Search a vine only in vivio"""
-
 	def __init__(self):
 		self.site = 'http://vivino.com/search/wines?q='
 
 	def page_result(self, ob_find):
+		""":return result: all page"""
 		data = requests.get(self.site + ob_find)
 		result = data.text.split('\n')
 		return result
 
-	def convert(self, data):
+	@staticmethod
+	def convert(data):
+		""" :param data: Page after search
+			:return result: All coincidences
+		"""
 		for res in data:
 			if '"name":' in res:
 				result = json.loads(res)
 				return result
 
-	def wine_id(self, url):
+	@staticmethod
+	def wine_id(url):
 		data_request = requests.get(url)
 		data = str(data_request.content)
 		result = re.findall('https://www.vivino.com/.+/w/(\d+)', data)
 		return result[0]
 
-	def wine_comm(self, num):
+	@staticmethod
+	def wine_comm(num):
 		data = requests.get('https://www.vivino.com/api/wines/' + num + '/reviews?per_page=10')
 		data = data.text
 		return data
 
 	def total(self, ob_find):
+		""":return names: dict  a) vine id(unique number)
+								b) vine name
+								c) vine image(url)
+		"""
 		names = []
+
 		data_page = self.page_result(ob_find)
 		data_json = self.convert(data_page)
-		for data in data_json:
-			print(data)
-			dat = self.wine_id(data['@id'])
-			result = [
-				dict(id=dat, name=data['name'], image=data['image'])
-			]
-			names.append(result)
-		return names
+		if data_json:
+
+			for data in data_json:
+				print(data)
+				dat = self.wine_id(data['@id'])
+				result = [
+					dict(id=dat, name=data['name'], image=data['image'])
+				]
+				names.append(result)
+			return names
 
 
 class WorksDB:

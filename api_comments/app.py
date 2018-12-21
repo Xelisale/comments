@@ -8,53 +8,54 @@ from function import Search, WorksDB
 app = Flask(__name__)
 
 
-@app.route('/')
-def base():
-	return b'<b>Application in development</b>'
-
-
-@app.route('/comments/api/names', methods=['GET'])
+@app.route('/api/names', methods=['GET'])
 def get_all_name():
 	with open('names.json', 'r') as file:
 		names_all = json.load(file)
+
 	return jsonify({'names': names_all})
 
 
-@app.route('/comments/api/names/<int:names_id>', methods=['GET'])
-def get_name(names_id):
-	with open('names.json', 'r') as file:
-		names = json.load(file)
-	name = list(filter(lambda t: int(t['id']) == names_id, names))
-	if len(name) == 0:
-		abort(404)
-	return jsonify({'name': name})
-
-
-@app.route('/comments/api/names/find/', methods=['POST'])
+@app.route('/api/names/find/', methods=['POST'])
 def names_find():
+	"""	Find and return all match in POST request.
+		Name in POST request necessary parameter
+	"""
 	if not (request.json and 'name' in request.json):
 		abort(400)
+
 	search = Search()
 	names = search.total(request.json['name'])
-	with open('names.json', 'w') as file:
-		json.dump(names, file)
-	return jsonify({'names': names}), 201
+
+	if names:
+		return jsonify({'names': names}), 201
+
+	else:
+		abort(404)
 
 
-@app.route('/comments/api/names/find/one/', methods=['POST'])
+@app.route('/api/names/find/id/', methods=['POST'])
 def one_comment():
+	""" :param requst.json: id number vine
+		:return comment:   information user and comments
+	"""
 	result = []
+
 	if not (request.json and 'id' in request.json):
 		abort(400)
+
 	search = Search()
 	work_bd = WorksDB()
 	work_bd.create_database()
 	data = work_bd.check_id(request.json['id'])
+
 	if not ('cache' in request.json) and len(data) != 0:
 		return jsonify({'comments': data}), 201
+
 	else:
 		comments = json.loads(search.wine_comm(request.json['id']))
 		result_all = comments['reviews']
+
 		for result_one in result_all:
 			comment = {
 				(result_one['user']['alias']):
@@ -65,10 +66,13 @@ def one_comment():
 			}
 			result.append(comment)
 		bd_data = [request.json['id'], str(result)]
+
 		if not 'cache' in request.json:
 			work_bd.insert(bd_data)
+
 		else:
 			work_bd.update_bd(bd_data)
+
 	return jsonify({'comment': result}), 201
 
 

@@ -5,9 +5,9 @@ After=network.target
 [Service]
 User=dev
 Group=www-data
-WorkingDirectory=/home/dev/api_comments
-Environment="PATH=/home/dev/api_comments/venv/bin"
-ExecStart=/home/dev/api_comments/venv/bin/uwsgi --ini uwsgi.ini
+WorkingDirectory=/opt/api_comments
+Environment="PATH=/opt/api_comments/venv/bin"
+ExecStart=/opt/api_comments/venv/bin/uwsgi --ini uwsgi.ini
 
 [Install]
 WantedBy=multi-user.target
