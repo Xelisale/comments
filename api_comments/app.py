@@ -1,7 +1,8 @@
+import json
 from flask import Flask, jsonify, abort
 from flask import make_response, request
-import json
 from werkzeug.contrib.fixers import ProxyFix
+
 
 from function import Search, WorksDB
 
