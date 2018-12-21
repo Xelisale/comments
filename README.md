@@ -10,6 +10,7 @@
     git clone https://github.com/Xelisale/django.git api_comments
     cd api_comments/ 
     python3.7 -m venv venv
+    source venv/bin/activate
     pip install -r requirements.txt
     
 ##### If you need njinx configuration
