@@ -14,11 +14,11 @@
     pip install -r requirements.txt
     
 ##### If you need njinx configuration
-    cp bin/api_comments_serv.conf /etc/njinx/site-avaliable/
-    ln -s /etc/njinx/site-avaliable/api_comments_serv.conf /opt/etc/njinx/site-enable/api_comments_serv.conf
-    njinx -t
+    cp bin/api_comments_serv.conf /etc/nginx/site-avaliable/
+    ln -s /etc/nginx/site-avaliable/api_comments_serv.conf /opt/etc/nginx/site-enable/api_comments_serv.conf
+    nginx -t
     If all ok
-    restart systemctl njinx
+    restart systemctl nginx
     
 ##### Add demon
     ln -s /opt/api_comments/bin/api_comments.service /etc/systemd/system/api_comments.service
