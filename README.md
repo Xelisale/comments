@@ -7,7 +7,7 @@
 ## Install
 ##### Path of default /opt/
     cd /opt/
-    git clone https://github.com/Xelisale/django.git api_comments
+    git clone https://github.com/Xelisale/comments.git api_comments
     cd api_comments/ 
     python3.7 -m venv venv
     source venv/bin/activate
