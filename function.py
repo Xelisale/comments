@@ -109,24 +109,24 @@ class WorksDB:
 		"""
 		cursor.execute(sql, (text,))
 		data = cursor.fetchone()
-		print("first data: ", data)
 		if data:
 			return data
+		con.close()
 
 	def return_numb(self):
 		con = sqlite3.connect(self.name_bd)
 		cursor = con.cursor()
 		sql = """
-			SELECT numb FROM comments ORDER BY numb DESC LIMIT 1"
+			SELECT numb FROM comments ORDER BY numb DESC LIMIT 1
 		"""
 
 		try:
 			cursor.execute(sql)
 			data = cursor.fetchone()
-			data += 1
 		except sqlite3.OperationalError:
-			data = 1
+			data = (1,)
 
+		con.close()
 		return data
 
 	def check_id(self, id_wine):
@@ -135,10 +135,20 @@ class WorksDB:
 		sql = "SELECT id_wine, data_request FROM data WHERE id_wine =" + id_wine
 		cursor.execute(sql)
 		data = cursor.fetchone()
+		con.close()
 		if data:
 			return data[1]
 		else:
 			return []
+
+	def select_all(self, id_wine):
+		con = sqlite3.connect(self.name_bd)
+		cursor = con.cursor()
+		sql = "SELECT id_wine, data_request FROM data WHERE id_wine =" + id_wine
+		cursor.execute(sql)
+		data = cursor.fetchone()
+		con.close()
+		return data
 
 	def insert(self, data_in):
 		con = sqlite3.connect(self.name_bd)
