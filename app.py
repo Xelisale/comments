@@ -1,4 +1,6 @@
 import json
+import logging
+
 from flask import Flask, jsonify, abort
 from flask import make_response, request
 from werkzeug.contrib.fixers import ProxyFix
@@ -8,6 +10,8 @@ from function import Search, WorksDB
 
 app = Flask(__name__)
 
+logging.basicConfig(filename='log.txt', level=logging.INFO)
+
 
 @app.route('/api/names', methods=['GET'])
 def get_all_name():
@@ -15,6 +19,7 @@ def get_all_name():
 		names_all = json.load(file)
 
 	return jsonify({'names': names_all})
+
 
 @app.route('/api/comments/<int:id>', methods=['GET'])
 def id_comments(id):
@@ -31,26 +36,21 @@ def id_comments(id):
 	result_all = comments['reviews']
 
 	for result_one in result_all:
-		id_comments = work_bd.check_id_comment(result_one['note'])
 
-		if id_comments:
-			id_comments = id_comments[0]
-
-		else:
-			work_bd.add_comment(result_one['note'], id)
-			id_comments = work_bd.return_numb()
-			id_comments = int(id_comments[0]) + 1
+		work_bd.add_comment(result_one['note'], result_one['id'])
 
 		comment = {
 			'author': result_one['user']['alias'],
 			'image': result_one['user']['image'],
-			'note': {'id': id_comments,
-					 'text': result_one['note']}
+			'note': {'id': result_one['id'],
+					'rating': result_one['rating'],
+					'text': result_one['note']}
 		}
 
 		result.append(comment)
 
 	bd_data = [id, str(result)]
+	logging.info(f"Add wine {id}")
 	work_bd.insert(bd_data)
 
 	return jsonify({'comment': result}), 201

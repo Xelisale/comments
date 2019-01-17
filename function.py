@@ -34,7 +34,7 @@ class Search:
 
 	@staticmethod
 	def wine_comm(num):
-		data = requests.get('https://www.vivino.com/api/wines/' + num + '/reviews?per_page=10')
+		data = requests.get('https://www.vivino.com/api/wines/' + num + '/reviews?per_page=50')
 		data = data.text
 		return data
 
@@ -123,6 +123,7 @@ class WorksDB:
 		try:
 			cursor.execute(sql)
 			data = cursor.fetchone()
+
 		except sqlite3.OperationalError:
 			data = (1,)
 
