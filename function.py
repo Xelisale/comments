@@ -2,7 +2,10 @@ import requests
 import json
 import re
 import sqlite3
+import logging
 
+
+logging.basicConfig(filename='function.txt', level=logging.INFO)
 
 class Search:
 	"""Search a vine only in vivio"""
@@ -11,6 +14,7 @@ class Search:
 
 	def page_result(self, ob_find):
 		""":return result: all page"""
+
 		data = requests.get(self.site + ob_find)
 		result = data.text.split('\n')
 		return result
@@ -39,6 +43,47 @@ class Search:
 		return data
 
 	def total(self, ob_find):
+		""":return names: dict  a) vine id(unique number)
+								b) vine name
+								c) vine image(url)
+		"""
+		ob_find = ob_find.replace('"', "")
+		names = []
+		result1 = []
+
+		def next_name(ob_find):
+			""" change ob_find in list data """
+			if ob_find == '':
+				return result1
+			result1.append(ob_find)
+
+			def add_obj(obj):
+				list_data = obj.split()
+				separator = ' '
+				obj = separator.join(list_data[:-1])
+				return obj
+
+			name = add_obj(ob_find)
+			next_name(name)
+
+		next_name(ob_find)
+
+		for res in result1:
+			logging.info(F"res : {res}")
+			data_page = self.page_result(res)
+			data_json = self.convert(data_page)
+			if data_json:
+
+				for data in data_json:
+					dat = self.wine_id(data['@id'])
+					result = [
+						dict(id=dat, name=data['name'], image=data['image'])
+					]
+					names.append(result)
+
+		return names
+
+	def total2(self, ob_find):
 		""":return names: dict  a) vine id(unique number)
 								b) vine name
 								c) vine image(url)

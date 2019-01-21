@@ -73,8 +73,8 @@ def names_find():
 		abort(400)
 
 	search = Search()
-	names = search.total(request.json['name'])
-
+	names = search.total2(request.json['name'])
+	logging.info(type(names))
 	if names:
 		return jsonify({'names': names}), 201
 
@@ -82,57 +82,57 @@ def names_find():
 		abort(404)
 
 
-@app.route('/api/names/find/id/', methods=['POST'])
-def one_comment():
-	""" :param requst.json['id']: id number vine
-		:return comment:   information user and comments
-	"""
-	result = []
-
-	if not (request.json and 'id' in request.json):
-		abort(400)
-
-	search = Search()
-	work_bd = WorksDB()
-	work_bd.create_database()
-	id = request.json['id']
-	data = work_bd.check_id(id)
-
-	if not ('cache' in request.json) and len(data) != 0:
-		return jsonify({'comments': data}), 201
-
-	else:
-		comments = json.loads(search.wine_comm(id))
-		result_all = comments['reviews']
-
-		for result_one in result_all:
-			id_comments = work_bd.check_id_comment(result_one['note'])
-
-			if id_comments:
-				id_comments = id_comments[0]
-			else:
-				work_bd.add_comment(result_one['note'], id)
-				id_comments = work_bd.return_numb()
-				id_comments = int(id_comments[0]) + 1
-
-			comment = {
-				'author': result_one['user']['alias'],
-				'image': result_one['user']['image'],
-				'note': {'id': id_comments,
-						'text': result_one['note']}
-			}
-
-			result.append(comment)
-
-		bd_data = [id, str(result)]
-
-		if 'cache' in request.json:
-			work_bd.update_bd(bd_data)
-
-		else:
-			work_bd.insert(bd_data)
-
-	return jsonify({'comment': result}), 201
+# @app.route('/api/names/find/id/', methods=['POST'])
+# def one_comment():
+# 	""" :param requst.json['id']: id number vine
+# 		:return comment:   information user and comments
+# 	"""
+# 	result = []
+#
+# 	if not (request.json and 'id' in request.json):
+# 		abort(400)
+#
+# 	search = Search()
+# 	work_bd = WorksDB()
+# 	work_bd.create_database()
+# 	id = request.json['id']
+# 	data = work_bd.check_id(id)
+#
+# 	if not ('cache' in request.json) and len(data) != 0:
+# 		return jsonify({'comments': data}), 201
+#
+# 	else:
+# 		comments = json.loads(search.wine_comm(id))
+# 		result_all = comments['reviews']
+#
+# 		for result_one in result_all:
+# 			id_comments = work_bd.check_id_comment(result_one['note'])
+#
+# 			if id_comments:
+# 				id_comments = id_comments[0]
+# 			else:
+# 				work_bd.add_comment(result_one['note'], id)
+# 				id_comments = work_bd.return_numb()
+# 				id_comments = int(id_comments[0]) + 1
+#
+# 			comment = {
+# 				'author': result_one['user']['alias'],
+# 				'image': result_one['user']['image'],
+# 				'note': {'id': id_comments,
+# 						'text': result_one['note']}
+# 			}
+#
+# 			result.append(comment)
+#
+# 		bd_data = [id, str(result)]
+#
+# 		if 'cache' in request.json:
+# 			work_bd.update_bd(bd_data)
+#
+# 		else:
+# 			work_bd.insert(bd_data)
+#
+# 	return jsonify({'comment': result}), 201
 
 
 @app.errorhandler(404)
