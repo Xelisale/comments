@@ -5,6 +5,8 @@
     Python => 3.7
    
 ## Install
+##### Install package
+	apt install python3-dev build-essential python3.7-venv
 ##### Path of default /opt/
     cd /opt/
     git clone https://github.com/Xelisale/comments.git api_comments
@@ -14,13 +16,13 @@
     pip install -r requirements.txt
     
 ##### If you need njinx configuration
-    cp bin/api_comments_serv.conf /etc/nginx/site-avaliable/
-    ln -s /etc/nginx/site-avaliable/api_comments_serv.conf /opt/etc/nginx/site-enable/api_comments_serv.conf
+    cp bin/api_comments_serv.conf /etc/nginx/sites-available/
+    ln -s /etc/nginx/sites-available/api_comments_serv.conf /etc/nginx/sites-enabled/api_comments_serv.conf
     nginx -t
     If all ok
-    restart systemctl nginx
+    systemctl restart nginx
     
-##### Add demon
+##### Add demon(don't forget set username in file service and uwsgi, recomemndent name www-data)
     ln -s /opt/api_comments/bin/api_comments.service /etc/systemd/system/api_comments.service
     
 ## How use

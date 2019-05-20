@@ -3,11 +3,11 @@ Description=uWSGI instance to serve project api comments
 After=network.target
 
 [Service]
-User=dev
+User=www-data
 Group=www-data
 WorkingDirectory=/opt/api_comments
 Environment="PATH=/opt/api_comments/venv/bin"
-ExecStart=/opt/api_comments/venv/bin/uwsgi --ini uwsgi.ini
+ExecStart=/opt/api_comments/venv/bin/uwsgi --ini /opt/api_comments/bin/uwsgi.ini
 
 [Install]
 WantedBy=multi-user.target
